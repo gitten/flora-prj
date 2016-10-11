@@ -1,8 +1,8 @@
 #+title: Flora Test Project
-#+options: toc:nil author:nil
+#+options: toc:nil author:nil todo:t
 
 * Log (starting [2016-10-08 Sat])
-#+BEGIN: clocktable :maxlevel 4 :scope subtree
+#+BEGnIN: clocktable :maxlevel 4 :scope subtree
 #+CAPTION: Clock summary at [2016-10-10 Mon 19:11]
 | Headline                                         | Time   |      |      |      |
 |--------------------------------------------------+--------+------+------+------|
