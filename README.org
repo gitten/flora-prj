@@ -212,19 +212,19 @@
       for +20dBm power, transmitting a data payload of 20
       bytes. Transmits take about 130mA for 70ms.
 
-      [[file:smart-yeilds/feather_lora32u4normal.png][file:~/Dropbox/the-org-life/smart-yeilds/feather_lora32u4normal.png]]
+      [[file:doc-assets/feather_lora32u4normal.png]]
       
     - The ~13mA quiescent current is the current draw for listening
       (~2mA) plus ~11mA for the microcontroller. This can be reduce to
       amost nothing with proper sleep modes and not putting the module
       in active listen mode!
 
-      [[file:smart-yeilds/feather_lora32u4normal_closeup.png][file:~/Dropbox/the-org-life/smart-yeilds/feather_lora32u4normal_closeup.png]]
+      [[file:doc-assets/feather_lora32u4normal_closeup.png]]
 
     - You can put the module into sleep mode by calling radio.sleep();
       which will save you about 2mA.
 
-      [[file:smart-yeilds/feather_loram0modulesleep_closeup.png][file:~/Dropbox/the-org-life/smart-yeilds/feather_loram0modulesleep_closeup.png]]
+      [[file:smart-yeilds/feather_loram0modulesleep_closeup.png][file:doc-assets/feather_loram0modulesleep_closeup.png]]
       
 * LoRaWAN spec
   spec link: [[https://www.lora-alliance.org/portals/0/specs/LoRaWAN%2520Specification%25201R0.pdf][LoraWAN spec 1RO]]
