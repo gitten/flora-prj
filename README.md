@@ -3,9 +3,9 @@ Log (starting \[2016-10-08 Sat\])
 
 | Headline                                    | Time      |       |      |      |
 |---------------------------------------------|-----------|-------|------|------|
-| **Total time**                              | **12:12** |       |      |      |
-| Log (starting \[2016-10-08 Sat\])           | 12:12     |       |      |      |
-| \_ Flora                                    |           | 11:07 |      |      |
+| **Total time**                              | **14:32** |       |      |      |
+| Log (starting \[2016-10-08 Sat\])           | 14:32     |       |      |      |
+| \_ Flora                                    |           | 13:27 |      |      |
 | \_ Driver only firmware                     |           |       | 2:46 |      |
 | \_ Sensor only firmware                     |           |       | 5:49 |      |
 | \_ Sensor TSL2591 (HDR light sensor)        |           |       |      | 0:28 |
