@@ -5,6 +5,7 @@
 #include <Adafruit_BME280.h>
 #include <RH_RF95.h>
 
+#include "dtostrf.c"
 
 #define LED 13
 
@@ -134,23 +135,29 @@ int16_t packetnum = 0;  // packet counter
 void loop(void) {
   lightPrint();
   bmePrint();
-  Serial.println()
   delay(1000);
 
-  // temp max char length : (- or 3rd digit)XX.XX = 6
-  char temp[6] = "testme";
-  // pressure max char length : XXXX.XX = 7
-  char press[7] = "testme2";
-  // humidity max char length : XXX.XX = 6
-  char huemy[6] = "testme";
 
-  char radiopacket[20] = "Hello World packet#      ";
-  itoa(packetnum++, radiopacket+13, 10);
-  Serial.print("Sending "); Serial.println(radiopacket);
-  radiopacket[19] = 0;
+  // float nearest = roundf(val * 100) / 100;
+  // temp max char length : (- or 3rd digit)XX.XX = 6 + null
+  // pressure max char length : XXXX.XX = 7 + null
+  // humidity max char length : XXX.XX = 6 + null
+  
+  //               0     6     12         23     30    36   41
+  char packet[43] = "temp: XXX.XX-pressure: XXXX.XX-hum: XXX.XX";
+  dtostrf(bmeSensor.readTemperature(), 6, 2, packet+6);
+  packet[12] = '\n';
+  dtostrf(bmeSensor.readPressure() / 100.0F, 7, 2, packet+23);
+  packet[30] = '\n';  
+  dtostrf(bmeSensor.readHumidity(), 6, 2, packet+36);
+  
+  packet[42] = 0;
+  
+  //  itoa(packetnum++, radiopacket+13, 10);
+  Serial.println("Sending :"); Serial.println(packet);
   
   Serial.println("Sending..."); delay(10);
-  rf95.send((uint8_t *)radiopacket, 20);
+  rf95.send((uint8_t *)packet, 43);
 
   Serial.println("Waiting for packet to complete..."); delay(10);
   rf95.waitPacketSent();
