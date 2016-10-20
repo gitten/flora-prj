@@ -1,25 +1,29 @@
-#+title: Flora Test Project
+#+title: Flora Project
 #+options: toc:nil author:nil todo:t
 
 * Log (starting [2016-10-08 Sat])
-#+BEGIN: clocktable :maxlevel 4 :scope subtree
-#+CAPTION: Clock summary at [2016-10-13 Thu 14:54]
-| Headline                                         | Time    |       |      |      |
+#+BEGIN: clocktable :maxlevel 4 :scope all
+#+CAPTION: Clock summary at [2016-10-19 Wed 18:41]
+| Headline                                         |    Time |       |      |      |
 |--------------------------------------------------+---------+-------+------+------|
-| *Total time*                                     | *14:32* |       |      |      |
+| *Total time*                                     | *18:50* |       |      |      |
 |--------------------------------------------------+---------+-------+------+------|
-| Log (starting [2016-10-08 Sat])                  | 14:32   |       |      |      |
-| \_  Flora                                        |         | 13:27 |      |      |
+| Log (starting [2016-10-08 Sat])                  |   18:00 |       |      |      |
+| \_  Flora                                        |         | 14:59 |      |      |
 | \_    Driver only firmware                       |         |       | 2:46 |      |
-| \_    Sensor only firmware                       |         |       | 5:49 |      |
+| \_    Sensor only firmware                       |         |       | 6:09 |      |
 | \_      Sensor TSL2591 (HDR light sensor)        |         |       |      | 0:28 |
-| \_      Sensor BME280 (pressure+temp+humidity... |         |       |      | 0:51 |
-| \_  RadioHead Library                            |         |  1:05 |      |      |
+| \_      Sensor BME280 (pressure+temp+humidity... |         |       |      | 1:11 |
+| \_  RadioHead Library                            |         |  2:02 |      |      |
 | \_    RH_RF95 driver notes                       |         |       | 1:05 |      |
+| \_  HopeRF RFM95 LoRa Module                     |         |  0:59 |      |      |
+| Symphony Link spek                               |    0:11 |       |      |      |
+| IEEE 802.15.4(a)                                 |    0:39 |       |      |      |
 #+END:
 
 ** Flora
    :LOGBOOK:
+   CLOCK: [2016-10-15 Sat 15:04]--[2016-10-15 Sat 16:16] =>  1:12
    CLOCK: [2016-10-13 Thu 14:40]--[2016-10-13 Thu 14:48] =>  0:08
    CLOCK: [2016-10-13 Thu 13:25]--[2016-10-13 Thu 13:58] =>  0:33
    CLOCK: [2016-10-13 Thu 12:24]--[2016-10-13 Thu 12:31] =>  0:07
@@ -50,7 +54,7 @@
      - Solution :: The folowing delay src_C++{delay(10);} in the sample code was
           preventing reception of packet. See following code
 #+BEGIN_SRC C++
-  Serial.println("Waiting for reply..."); // delay(10); <---- だめ
+  Serial.println("Waiting for reply..."); // delay(10); <--
   if (rf95.waitAvailableTimeout(1000)) { 
     // Should be a reply message for us now (but there was not...)   
     if (rf95.recv(buf, &len)) {
@@ -110,13 +114,21 @@
 #+END_SRC
 **** Sensor BME280 (pressure+temp+humidity sensor)
      :LOGBOOK:
+     CLOCK: [2016-10-15 Sat 16:14]--[2016-10-15 Sat 16:14] =>  0:00
+     CLOCK: [2016-10-15 Sat 15:28]--[2016-10-15 Sat 15:48] =>  0:20
      CLOCK: [2016-10-10 Mon 15:08]--[2016-10-10 Mon 15:23] =>  0:15
      CLOCK: [2016-10-10 Mon 14:25]--[2016-10-10 Mon 15:01] =>  0:36
      :END:
      - [[https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout?view=all][Adafruit doc link]]
      - Libraries also available through platformio lib manager
        + [[http://platformio.org/lib/show/166/Adafruit%2520BME280%2520Library][pio repo link: Adafruit BME280 lib]]
+** 915 MHz transmission properties
+*** TODO link loss formula
 ** RadioHead Library
+   :LOGBOOK:
+   CLOCK: [2016-10-15 Sat 14:41]--[2016-10-15 Sat 15:16] =>  0:35
+   CLOCK: [2016-10-15 Sat 12:42]--[2016-10-15 Sat 13:04] =>  0:22
+   :END:
 *** TODO evaluate their power measurements
 *** RH_RF95 driver notes
     :LOGBOOK:
@@ -162,39 +174,21 @@
         conditions described above
         + Range over flat ground through heavy trees and vegetation
           approx 2km.
-** TODO review cold temp electronics thread
-   [[http://electronics.stackexchange.com/questions/143921/why-do-electronics-have-a-low-temperature-limit][stackexchange
-   thread]]
-* Feather MO board w/ radio
-  All board related info was taken from the adafruit docs.
-
-  Link to the single page format: [[https://learn.adafruit.com/adafruit-feather-m0-radio-with-lora-radio-module?view=all][Feather M0 w/ Lora Docs]]
-** Dev enviornment
-   - Works with the arduino IDE after adding the adafruit board
-     manager URL in settings
-   - Built in usb-to-serial for programming and debugging
-   - Adafruit's suggested open source library for the radio is
-     [[http://www.airspayce.com/mikem/arduino/RadioHead/][AirSpayce's Radiohead library]]
-** Hardware coms
-   - SPI pins which also can be configured for GPIO
-   - ATSAMD21 chip has 6 serial com modules that can be used for I2C,
-     SPI or Serial
-** LoRa radio
-*** Module specs
-**** [[https://cdn-learn.adafruit.com/assets/assets/000/031/659/original/RFM95_96_97_98W.pdf?1460518717][spec link]]
-**** Hoperf Electronic RFM95W
-     |-----------------------+------------------|
-     | Frequency Range       | 869/915 MHz      |
-     | Spreading Factor      | 6-12             |
-     | Bandwidth             | 7.8-500kHz       |
-     | Effective Bitrate     | .018-37.5 kbps   |
-     | Estimated Sensitivity | -111 to -148 dBm |
-     |-----------------------+------------------|
-     |                       |                  |
-*** Antenna
-   - If the wire antenna is undesirable, there are pads for an smt
-     connector
-
+** HopeRF RFM95 LoRa Module
+   :LOGBOOK:
+   CLOCK: [2016-10-15 Sat 13:48]--[2016-10-15 Sat 13:51] =>  0:03
+   CLOCK: [2016-10-14 Fri 21:31]--[2016-10-14 Fri 21:42] =>  0:11
+   CLOCK: [2016-10-14 Fri 20:34]--[2016-10-14 Fri 21:19] =>  0:45
+   :END:
+*** [[https://cdn-learn.adafruit.com/assets/assets/000/031/659/original/RFM95_96_97_98W.pdf?1460518717][spec link]]
+    |-----------------------+------------------|
+    | Frequency Range       | 869/915 MHz      |
+    | Spreading Factor      | 6-12             |
+    | Bandwidth             | 7.8-500kHz       |
+    | Effective Bitrate     | .018-37.5 kbps   |
+    | Estimated Sensitivity | -111 to -148 dBm |
+    |-----------------------+------------------|
+    |                       |                  |
 *** Related definitions
     - link budget :: Accounting of all of the gains and losses from
          the transmitter, through the medium (free space, cable,
@@ -223,6 +217,23 @@
     |-----+-------|
     |  -5 | 0.316 |
     
+** TODO review cold temp electronics thread
+   [[http://electronics.stackexchange.com/questions/143921/why-do-electronics-have-a-low-temperature-limit][stackexchange thread]]
+* Feather MO board w/ radio
+  All board related info was taken from the adafruit docs.
+
+  Link to the single page format: [[https://learn.adafruit.com/adafruit-feather-m0-radio-with-lora-radio-module?view=all][Feather M0 w/ Lora Docs]]
+** Dev enviornment
+   - Works with the arduino IDE after adding the adafruit board
+     manager URL in settings
+   - Built in usb-to-serial for programming and debugging
+   - Adafruit's suggested open source library for the radio is
+     [[http://www.airspayce.com/mikem/arduino/RadioHead/][AirSpayce's Radiohead library]]
+** Hardware coms
+   - SPI pins which also can be configured for GPIO
+   - ATSAMD21 chip has 6 serial com modules that can be used for I2C,
+     SPI or Serial
+** LoRa radio
 ** Power consumption
    -The following statistics are as listed in the online docs
      - ~300uA during full sleep
@@ -247,7 +258,7 @@
     - You can put the module into sleep mode by calling radio.sleep();
       which will save you about 2mA.
 
-      [[file:smart-yeilds/feather_loram0modulesleep_closeup.png][file:doc-assets/feather_loram0modulesleep_closeup.png]]
+      [[file:doc-assets/feather_loram0modulesleep_closeup.png]]
       
 * LoRaWAN spec
   spec link: [[https://www.lora-alliance.org/portals/0/specs/LoRaWAN%2520Specification%25201R0.pdf][LoraWAN spec 1RO]]
@@ -268,7 +279,17 @@
      application level
    - Device specific key (EUI128)
 * Symphony Link spek
+  :LOGBOOK:
+  CLOCK: [2016-10-15 Sat 22:14]--[2016-10-15 Sat 22:25] =>  0:11
+  :END:
 ** useful links
    - http://www.link-labs.com/when-should-the-lorawan-specification-be-used/
    - http://info.link-labs.com/hubfs/Symphony_Protocol_Overview-2.pdf
    - http://www.link-labs.com/low-power-wide-area-network-lpwa/
+   - http://www.link-labs.com/lora/
+* IEEE 802.15.4(a)
+  :LOGBOOK:
+  CLOCK: [2016-10-15 Sat 23:27]--[2016-10-15 Sat 23:52] =>  0:25
+  CLOCK: [2016-10-15 Sat 23:05]--[2016-10-15 Sat 23:14] =>  0:09
+  CLOCK: [2016-10-15 Sat 22:33]--[2016-10-15 Sat 22:38] =>  0:05
+  :END:

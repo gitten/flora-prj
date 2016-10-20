@@ -7,7 +7,8 @@
 
 #include "dtostrf.c"
 
-#define LED 13
+#define LED 13 
+#define VBATPIN A7
 
 // LoRa Radio
 #define RFM95_CS 8 // select
@@ -19,8 +20,11 @@
 #define SDA 20 //wire data pin
 #define SCL 21 //wire clock pin
 
+#define UPDATE_INTERVAL 5000 //transmit every 5 secs
+
 #define SEALEVELPRESSURE_HPA (1013.25) // arbitrary value
 
+bool DEBUG = false;
 // Instantiate the HDR light sensor
 Adafruit_TSL2591 lightSensor = Adafruit_TSL2591(2591);
 Adafruit_BME280 bmeSensor;
@@ -35,26 +39,28 @@ void setup(void) {
   digitalWrite(RFM95_RST, HIGH);
 
   // Serial monitoring/debuging
-  Serial.begin(9600);
-  while (!Serial) { // Wait for serial port to be available
-    digitalWrite(LED, HIGH);
-    delay(500);
-    digitalWrite(LED, LOW);
-    delay(500);
+    Serial.begin(9600);
+    if (DEBUG) {
+    while (!Serial) { // Wait for serial port to be available
+      digitalWrite(LED, HIGH);
+      delay(500);
+      digitalWrite(LED, LOW);
+      delay(500);
+    }
   }
   // gives time for Serial to be available for monitoring before logging begins
   digitalWrite(LED, HIGH);
   delay(25000);
   digitalWrite(LED, LOW);
-   Serial.println("Serial logging started...");
+  Serial.println("Serial logging started...");
 
-   if (lightSensor.begin() && bmeSensor.begin()) {
-     Serial.println("Sensorshttp://stackoverflow.com/questions/7228438/convert-double-float-to-string initialized.");
-   }
-   else {
-     Serial.println("Sensor inits failed...halting program");
-     while (1);
-   }
+  if (lightSensor.begin() && bmeSensor.begin()) {
+    Serial.println("Sensors initialized.");
+  }
+  else {
+    Serial.println("Sensor inits failed...halting program");
+    while (1);
+  }
    
 
    ////  Light Sensor Configs
@@ -100,7 +106,7 @@ void lightPrint(void) {
   uint16_t x = lightSensor.getLuminosity(TSL2591_VISIBLE);
 
   Serial.print("[ ");
-  Serial.print(millis()); // <-- why?
+  Serial.print(millis());
   Serial.print(" ms ] ");
   Serial.print("Luminosity: ");
   Serial.println(x, DEC);
@@ -133,31 +139,42 @@ int16_t packetnum = 0;  // packet counter
 
 //Main loop
 void loop(void) {
-  lightPrint();
-  bmePrint();
-  delay(1000);
+  // lightPrint();
+  // bmePrint();
+  // delay(1000);
 
 
   // float nearest = roundf(val * 100) / 100;
-  // temp max char length : (- or 3rd digit)XX.XX = 6 + null
-  // pressure max char length : XXXX.XX = 7 + null
-  // humidity max char length : XXX.XX = 6 + null
+  // packet number is int16_t so max 5 char
+  // temp max char length : (- or 3rd digit)XX.XX = 6
+  // pressure max char length : XXXX.XX = 7
+  // humidity max char length : XXX.XX = 6
+  int packLen = 66;
+  //               0       8    13
+  char packet[] = "packet #XXXXX-"
+    //14   20    26
+    "temp: XXX.XX-"
+    //27       37     44
+    "pressure: XXXX.XX-"
+    //45  50    56
+    "hum: XXX.XX-"
+    //57  62
+    "BAT: X.XX";
+  itoa(packetnum++, packet+8, 10);
+  dtostrf(bmeSensor.readTemperature(), 6, 2, packet+20);
+  dtostrf(bmeSensor.readPressure() / 100.0F, 7, 2, packet+37);
+  dtostrf(bmeSensor.readHumidity(), 6, 2, packet+50);
+  dtostrf(analogRead(VBATPIN)*2*3.3/1024, 3, 2, packet+62);
   
-  //               0     6     12         23     30    36   41
-  char packet[43] = "temp: XXX.XX-pressure: XXXX.XX-hum: XXX.XX";
-  dtostrf(bmeSensor.readTemperature(), 6, 2, packet+6);
-  packet[12] = '\n';
-  dtostrf(bmeSensor.readPressure() / 100.0F, 7, 2, packet+23);
-  packet[30] = '\n';  
-  dtostrf(bmeSensor.readHumidity(), 6, 2, packet+36);
-  
-  packet[42] = 0;
-  
-  //  itoa(packetnum++, radiopacket+13, 10);
-  Serial.println("Sending :"); Serial.println(packet);
+  Serial.println("Sending :");
+  Serial.println(packet);
+  Serial.println(packet+14);
+  Serial.println(packet+27);
+  Serial.println(packet+45);
+  Serial.println(packet+57);
   
   Serial.println("Sending..."); delay(10);
-  rf95.send((uint8_t *)packet, 43);
+  rf95.send((uint8_t *)packet, packLen);
 
   Serial.println("Waiting for packet to complete..."); delay(10);
   rf95.waitPacketSent();
@@ -181,5 +198,5 @@ void loop(void) {
   else {
     Serial.println("No reply, is there a listener around?");
   }
-  delay(1000);
+  delay(UPDATE_INTERVAL);
 }
